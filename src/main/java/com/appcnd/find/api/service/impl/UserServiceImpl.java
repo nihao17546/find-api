@@ -5,7 +5,7 @@ import com.appcnd.find.api.conf.ProgramConfig;
 import com.appcnd.find.api.conf.SecretConfig;
 import com.appcnd.find.api.dao.IUserDAO;
 import com.appcnd.find.api.exception.FindException;
-import com.appcnd.find.api.pojo.UserVO;
+import com.appcnd.find.api.pojo.vo.UserVO;
 import com.appcnd.find.api.pojo.json.UserInfo;
 import com.appcnd.find.api.pojo.po.UserPO;
 import com.appcnd.find.api.service.IUserService;

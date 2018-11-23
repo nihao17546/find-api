@@ -1,4 +1,4 @@
-package com.appcnd.find.api.pojo;
+package com.appcnd.find.api.pojo.vo;
 
 import com.appcnd.find.api.pojo.po.UserPO;
 import lombok.Data;

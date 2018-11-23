@@ -1,7 +1,7 @@
 package com.appcnd.find.api.service;
 
 import com.appcnd.find.api.exception.FindException;
-import com.appcnd.find.api.pojo.UserVO;
+import com.appcnd.find.api.pojo.vo.UserVO;
 import com.appcnd.find.api.pojo.json.UserInfo;
 
 /**

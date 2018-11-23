@@ -2,7 +2,7 @@ package com.appcnd.find.api.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.appcnd.find.api.exception.FindException;
-import com.appcnd.find.api.pojo.UserVO;
+import com.appcnd.find.api.pojo.vo.UserVO;
 import com.appcnd.find.api.pojo.json.UserInfo;
 import com.appcnd.find.api.service.IUserService;
 import com.appcnd.find.api.util.DesUtil;
