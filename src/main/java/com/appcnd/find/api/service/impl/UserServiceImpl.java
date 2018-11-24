@@ -5,6 +5,7 @@ import com.appcnd.find.api.conf.ProgramConfig;
 import com.appcnd.find.api.conf.SecretConfig;
 import com.appcnd.find.api.dao.IUserDAO;
 import com.appcnd.find.api.exception.FindException;
+import com.appcnd.find.api.pojo.json.LoginRes;
 import com.appcnd.find.api.pojo.vo.UserVO;
 import com.appcnd.find.api.pojo.json.UserInfo;
 import com.appcnd.find.api.pojo.po.UserPO;
@@ -39,11 +40,12 @@ public class UserServiceImpl implements IUserService {
     private SecretConfig secretConfig;
 
     @Override
-    public UserVO wxLogin(String code, UserInfo userInfo) throws FindException {
+    public UserVO wxLogin(LoginRes loginRes) throws FindException {
+        UserInfo userInfo = loginRes.getUserInfo();
         Map<String,Object> param = new HashMap<>();
         param.put("appid", secretConfig.getAppId());
         param.put("secret", secretConfig.getAppSecret());
-        param.put("js_code", code);
+        param.put("js_code", loginRes.getCode());
         param.put("grant_type", "authorization_code");
         String ret = HttpClientUtils.doPost(programConfig.getWeixinAuthUrl(), param);
         Map<String,String> result = JSON.parseObject(ret, Map.class);
@@ -63,6 +65,8 @@ public class UserServiceImpl implements IUserService {
             }
             else if(needUpdate(userPO, checkPO)){
                 userDAO.updateByUnionId(userPO);
+            }
+            if (userPO.getId() == null) {
                 userPO.setId(checkPO.getId());
             }
             return getUserVO(userPO);

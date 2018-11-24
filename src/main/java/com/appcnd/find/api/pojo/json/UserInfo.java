@@ -7,7 +7,6 @@ import lombok.Data;
  */
 @Data
 public class UserInfo {
-    private String openId;
     private String nickName;
     private Integer gender;
     private String city;

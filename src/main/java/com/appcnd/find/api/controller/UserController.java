@@ -1,17 +1,14 @@
 package com.appcnd.find.api.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.appcnd.find.api.exception.FindException;
+import com.appcnd.find.api.pojo.json.LoginRes;
 import com.appcnd.find.api.pojo.vo.UserVO;
-import com.appcnd.find.api.pojo.json.UserInfo;
 import com.appcnd.find.api.service.IUserService;
 import com.appcnd.find.api.util.DesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author nihao 2018/11/22
@@ -25,10 +22,12 @@ public class UserController extends BaseController {
     private IUserService userService;
 
     @RequestMapping("/auth")
-    public String auth(@RequestParam String code, @RequestParam String user) {
-        UserInfo userInfo = JSON.parseObject(user, UserInfo.class);
+    public String auth(@RequestBody LoginRes loginRes) {
+        if (loginRes.getUserInfo() == null || loginRes.getCode() == null) {
+            return fail("【请求参数不全】").json();
+        }
         try {
-            UserVO userVO = userService.wxLogin(code, userInfo);
+            UserVO userVO = userService.wxLogin(loginRes);
             return ok().pull("response", userVO).json();
         } catch (FindException e) {
             return fail(e.getMessage()).json();

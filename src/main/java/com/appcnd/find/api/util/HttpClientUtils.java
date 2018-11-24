@@ -195,7 +195,7 @@ public class HttpClientUtils {
                     contentBody = new ByteArrayBody((byte[]) value, key);
                 }
                 else {
-                    contentBody = new StringBody(key, ContentType.create(
+                    contentBody = new StringBody(value.toString(), ContentType.create(
                             "text/plain", Consts.UTF_8));
                 }
                 entityBuilder.addPart(key, contentBody);
