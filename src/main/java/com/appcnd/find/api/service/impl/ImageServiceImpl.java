@@ -7,10 +7,8 @@ import com.appcnd.find.api.pojo.result.SearchResult;
 import com.appcnd.find.api.pojo.vo.ImageVO;
 import com.appcnd.find.api.service.IImageService;
 import com.appcnd.find.api.util.Strings;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -20,7 +18,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,12 +38,6 @@ public class ImageServiceImpl implements IImageService {
 
     @Autowired
     private ProgramConfig config;
-    private SolrClient solrClient = null;
-
-    @PostConstruct
-    public void init() {
-        solrClient = new HttpSolrClient.Builder(config.getCoreUrl()).build();
-    }
 
     @Override
     public List<ImageVO> random(Integer limit) {
@@ -54,6 +45,8 @@ public class ImageServiceImpl implements IImageService {
         return imagePOList.stream().map(po -> {
             ImageVO vo = new ImageVO();
             BeanUtils.copyProperties(po, vo);
+            vo.setSrc(vo.getSrc().replace("${img}", "http://img.nihaov.com"));
+            vo.setCompressSrc(vo.getCompressSrc().replace("${img}", "http://img.nihaov.com"));
             return vo;
         }).collect(Collectors.toList());
     }
@@ -77,7 +70,7 @@ public class ImageServiceImpl implements IImageService {
             query.setRows(rows);
             QueryResponse response = null;
             try {
-                response = solrClient.query(query);
+                response = config.getSolrClient().query(query);
             } catch (IOException e) {
                 LOGGER.error("solr search ERROR",e);
             } catch (SolrServerException e) {

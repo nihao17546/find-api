@@ -18,4 +18,5 @@ public class ImagePO {
     private Date createdAt;
     private Boolean flag;
     private Long uid;
+    private Date dihTime;
 }

@@ -1,6 +1,8 @@
 package com.appcnd.find.api.conf;
 
 import lombok.Data;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,6 +22,7 @@ public class ProgramConfig {
     private String[] filterUris;
     private String defaultQuery;
     private String coreUrl;
+    private SolrClient solrClient;
 
     public void setFilterUris(String filterUris) {
         if (filterUris != null && !filterUris.equals("")) {
@@ -28,5 +31,10 @@ public class ProgramConfig {
         else {
             this.filterUris = new String[]{};
         }
+    }
+
+    public void setCoreUrl(String coreUrl) {
+        this.coreUrl = coreUrl;
+        solrClient = new HttpSolrClient.Builder(coreUrl).build();
     }
 }

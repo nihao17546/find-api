@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.appcnd.find.api.dao.IPhotoDAO">
+    <select id="selectOldImage" resultType="com.appcnd.find.api.pojo.po.ImagePO">
+        select * from photograph.tb_image where 1=1
+        <if test="sId != null and eId != null">
+            and id between #{sId} and #{eId}
+        </if>
+    </select>
+    <select id="selectOldImage2TagByImageIds" resultType="com.appcnd.find.api.pojo.po.Image2TagPO">
+        select * from photograph.tb_image2tag where image_id in
+        <foreach collection="imageIds" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectOldTagByIds" resultType="com.appcnd.find.api.pojo.po.TagPO">
+        select * from photograph.tb_tag where id in
+        <foreach collection="ids" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="insertNewImage">
+        insert into tb_image(id,title,compress_src,src,width,height,created_at,flag,uid,dih_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},#{item.title},#{item.compressSrc},#{item.src},#{item.width},#{item.height},
+            #{item.createdAt},#{item.flag},#{item.uid},#{item.dihTime})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        <trim prefix="" suffixOverrides=",">
+            title = VALUES(title),
+            compress_src = VALUES(compress_src),
+            src = VALUES(src),
+            width = VALUES(width),
+            height = VALUES(height),
+            created_at = VALUES(created_at),
+            flag = VALUES(flag),
+            uid = VALUES(uid),
+            dih_time = VALUES(dih_time),
+        </trim>
+    </insert>
+
+    <insert id="insertNewImage2Tag">
+        insert into tb_image2tag(image_id,tag_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.imageId},#{item.tagId})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        <trim prefix="" suffixOverrides=",">
+            image_id = VALUES(image_id),
+            tag_id = VALUES(tag_id),
+        </trim>
+    </insert>
+
+    <insert id="insertNewTag">
+        insert into tb_tag(id,`type`,`name`)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},#{item.type},#{item.name})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        <trim prefix="" suffixOverrides=",">
+            `type` = VALUES(`type`),
+            `name` = VALUES(`name`),
+        </trim>
+    </insert>
+
+    <select id="selectIntoSolr" resultType="java.util.HashMap">
+        select a.*,group_concat(c.name separator ',') as image_tag from tb_image a left join tb_image2tag b on a.id=b.image_id left join tb_tag c on c.id=b.tag_id
+        where flag=1 and a.id between #{sId} and #{eId} group by a.id
+    </select>
+</mapper>
