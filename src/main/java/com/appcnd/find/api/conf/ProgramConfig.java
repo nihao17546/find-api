@@ -18,6 +18,8 @@ public class ProgramConfig {
 
     private String weixinAuthUrl;
     private String[] filterUris;
+    private String defaultQuery;
+    private String coreUrl;
 
     public void setFilterUris(String filterUris) {
         if (filterUris != null && !filterUris.equals("")) {

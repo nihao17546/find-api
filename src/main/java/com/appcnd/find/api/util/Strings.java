@@ -15,4 +15,11 @@ public class Strings {
         return true;
     }
 
+    public static boolean isEmpty(String str) {
+        if (str == null) {
+            return true;
+        }
+        return str.trim().equals("");
+    }
+
 }
