@@ -33,7 +33,10 @@ public class ImageController extends BaseController {
                              @RequestParam(required = false, defaultValue = "image_date") String sort,
                              @RequestParam(required = false, defaultValue = "desc") String asc) {
         SearchResult searchResult = imageService.query(keyword, page, rows, sort, asc);
-        return ok().pull("response", searchResult).json();
+        return ok().pull("response", searchResult.getData())
+                .pull("curPage", searchResult.getCurPage())
+                .pull("pageCount", searchResult.getPageCount())
+                .pull("recordCount", searchResult.getRecordCount()).json();
     }
 
 }
