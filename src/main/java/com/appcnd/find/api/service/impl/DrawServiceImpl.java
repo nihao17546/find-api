@@ -7,6 +7,7 @@ import com.appcnd.find.api.pojo.StaticConstant;
 import com.appcnd.find.api.pojo.json.FontText;
 import com.appcnd.find.api.pojo.po.ImagePO;
 import com.appcnd.find.api.pojo.po.UserFavoPO;
+import com.appcnd.find.api.pojo.vo.FaceVO;
 import com.appcnd.find.api.pojo.vo.ImageVO;
 import com.appcnd.find.api.service.IDrawService;
 import com.appcnd.find.api.util.AnimatedGifEncoder;
@@ -34,7 +35,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -134,7 +137,7 @@ public class DrawServiceImpl implements IDrawService {
 
     @Transactional
     @Override
-    public void drawFace(MultipartFile multipartFile, Long uid) throws FindException {
+    public List<FaceVO> drawFace(MultipartFile multipartFile, Long uid) throws FindException {
         String today = SimpleDateUtil.shortFormat(new Date()).replaceAll("-","");
         String fileName = UUID.randomUUID().toString() + "-" + multipartFile.getOriginalFilename();
         String sourcePath = "/mydata/ftp/face/" + today + "/" + uid + "/" + fileName;
@@ -142,7 +145,6 @@ public class DrawServiceImpl implements IDrawService {
         if(!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
         }
-
         try {
             Thumbnails.of(multipartFile.getInputStream()).size(500,500).toFile(file);
             String url = sourcePath.replace("/mydata/ftp", StaticConstant.FDFS_PREFIX);
@@ -163,7 +165,11 @@ public class DrawServiceImpl implements IDrawService {
             //图像识别
             String image = BaseUtil.getBase64(multipartFile.getInputStream(), false);
             BaiduUtils.Detect detect = baiduUtils.detect(image);
-            System.out.println("---");
+            List<FaceVO> faceVOS = new ArrayList<>();
+            for (BaiduUtils.DetectResult detectResult : detect.getResult()) {
+                faceVOS.add(BaiduUtils.getFace(detectResult));
+            }
+            return faceVOS;
         } catch (IOException e) {
             LOGGER.error("{}", e);
             throw new FindException("抱歉，服务异常，请稍后再试！");
