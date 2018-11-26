@@ -45,8 +45,8 @@ public class ImageServiceImpl implements IImageService {
         return imagePOList.stream().map(po -> {
             ImageVO vo = new ImageVO();
             BeanUtils.copyProperties(po, vo);
-            vo.setSrc(vo.getSrc().replace("${img}", "http://img.nihaov.com"));
-            vo.setCompressSrc(vo.getCompressSrc().replace("${img}", "http://img.nihaov.com"));
+            vo.setSrc(Strings.compileUrl(vo.getSrc()));
+            vo.setCompressSrc(Strings.compileUrl(vo.getCompressSrc()));
             return vo;
         }).collect(Collectors.toList());
     }
@@ -124,10 +124,10 @@ public class ImageServiceImpl implements IImageService {
             imageVO.setTitle((String) title);
         }
         if(image_compress_src!=null){
-            imageVO.setCompressSrc((String) image_compress_src);
+            imageVO.setCompressSrc(Strings.compileUrl((String) image_compress_src));
         }
         if(image_src!=null){
-            imageVO.setSrc((String) image_src);
+            imageVO.setSrc(Strings.compileUrl((String) image_src));
         }
         if(tags!=null){
             imageVO.setTags((List<String>) tags);

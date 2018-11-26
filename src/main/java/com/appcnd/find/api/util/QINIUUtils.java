@@ -24,7 +24,8 @@ public class QINIUUtils {
     @Autowired
     private SecretConfig secretConfig;
 
-    private String lookBucket = "mydata";
+    private final String lookBucket = "mydata";
+    public final static String URL_PREFIX = "${mydata}";
 
     public Result upload(File file, String key, String lookBucket){
         Result result = new Result();
