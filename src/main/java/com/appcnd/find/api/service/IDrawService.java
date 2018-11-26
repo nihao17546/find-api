@@ -14,4 +14,5 @@ public interface IDrawService {
     ImageVO drawLook(MultipartFile multipartFile, String word, Integer pos, Integer size,
                      String color, String family, Integer type, Long uid) throws FindException;
 
+    void drawFace(MultipartFile multipartFile, Long uid) throws FindException;
 }

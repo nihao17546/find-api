@@ -16,7 +16,7 @@ public class ImagePO {
     private Integer width;
     private Integer height;
     private Date createdAt;
-    private Boolean flag;
+    private Integer flag;
     private Long uid;
     private Date dihTime;
 }

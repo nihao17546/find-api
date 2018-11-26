@@ -19,6 +19,6 @@
     <insert id="insertPic" useGeneratedKeys="true" keyProperty="id"
             parameterType="com.appcnd.find.api.pojo.po.ImagePO">
         insert into tb_image(title,compress_src,src,width,height,created_at,flag,uid)
-        values(#{title},#{compressSrc},#{src},#{width},#{height},now(),2,#{uid})
+        values(#{title},#{compressSrc},#{src},#{width},#{height},now(),#{flag},#{uid})
     </insert>
 </mapper>

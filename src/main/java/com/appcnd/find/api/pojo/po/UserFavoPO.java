@@ -12,4 +12,12 @@ public class UserFavoPO {
     private Long uid;
     private Long picId;
     private Date createdAt;
+
+    public UserFavoPO() {
+    }
+
+    public UserFavoPO(Long uid, Long picId) {
+        this.uid = uid;
+        this.picId = picId;
+    }
 }
