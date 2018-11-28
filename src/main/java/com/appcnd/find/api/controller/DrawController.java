@@ -1,19 +1,24 @@
 package com.appcnd.find.api.controller;
 
 import com.appcnd.find.api.exception.FindException;
+import com.appcnd.find.api.pojo.vo.FaceVO;
 import com.appcnd.find.api.pojo.vo.ImageVO;
 import com.appcnd.find.api.service.IDrawService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * @author nihao 2018/11/23
  */
-@RestController("/draw")
+@RestController()
+@RequestMapping("/draw")
 public class DrawController extends BaseController {
 
     @Autowired
@@ -37,9 +42,14 @@ public class DrawController extends BaseController {
     }
 
     @PostMapping("/face")
-    public System face(@Value("#{request.getAttribute('uid')}") Long uid,
+    public String face(@Value("#{request.getAttribute('uid')}") Long uid,
                        @RequestParam(value = "file") MultipartFile multipartFile) {
-        return null;
+        try {
+            List<FaceVO> faceVOList = drawService.drawFace(multipartFile, uid);
+            return ok().pull("response", faceVOList).json();
+        } catch (FindException e) {
+            return fail(e.getMessage()).json();
+        }
     }
 
 }

@@ -161,7 +161,7 @@ public class DrawServiceImpl implements IDrawService {
             imagePO.setHeight(height);
             imagePO.setUid(uid);
             imagePO.setFlag(2);
-            imageDAO.insertPic(imagePO);
+//            imageDAO.insertPic(imagePO);
             //图像识别
             String image = BaseUtil.getBase64(multipartFile.getInputStream(), false);
             BaiduUtils.Detect detect = baiduUtils.detect(image);
