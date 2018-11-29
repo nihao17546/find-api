@@ -1,11 +1,15 @@
 package com.appcnd.find.api;
 
 import com.appcnd.find.api.dao.IPhotoDAO;
+import com.appcnd.find.api.exception.FindException;
 import com.appcnd.find.api.pojo.StaticConstant;
+import com.appcnd.find.api.pojo.json.baidu.BaiduResult;
 import com.appcnd.find.api.pojo.po.Image2TagPO;
 import com.appcnd.find.api.pojo.po.ImagePO;
 import com.appcnd.find.api.pojo.po.TagPO;
 import com.appcnd.find.api.service.ISolrService;
+import com.appcnd.find.api.util.BaiduFaceUtil;
+import com.appcnd.find.api.util.BaseUtil;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
@@ -16,6 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +38,8 @@ public class FindApiApplicationTests {
     private IPhotoDAO photoDAO;
     @Autowired
     private ISolrService solrService;
+    @Autowired
+    private BaiduFaceUtil baiduFaceUtil;
 
     @Test
     public void loadData() {
@@ -52,6 +61,14 @@ public class FindApiApplicationTests {
         同步索引(20001L, 25000L);
         同步索引(25001L, 30000L);
         同步索引(30001L, 35000L);
+    }
+
+    @Test
+    public void testFace() throws FileNotFoundException, FindException {
+        File file = new File("C:\\Users\\admin\\Desktop\\2.jpg");
+        String image = BaseUtil.getBase64(new FileInputStream(file), false);
+        BaiduResult result = baiduFaceUtil.detect(image);
+        System.out.println("-");
     }
 
     public void 迁移图片数据(Long from, Long to) {

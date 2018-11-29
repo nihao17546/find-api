@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class FaceShape {
-    private String type;
+    private String type;// square: 正方形 triangle:三角形 oval: 椭圆 heart: 心形 round: 圆形
     private Double probability;
 }

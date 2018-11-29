@@ -5,12 +5,14 @@ import com.appcnd.find.api.dao.ImageDAO;
 import com.appcnd.find.api.exception.FindException;
 import com.appcnd.find.api.pojo.StaticConstant;
 import com.appcnd.find.api.pojo.json.FontText;
+import com.appcnd.find.api.pojo.json.baidu.BaiduResult;
 import com.appcnd.find.api.pojo.po.ImagePO;
 import com.appcnd.find.api.pojo.po.UserFavoPO;
 import com.appcnd.find.api.pojo.vo.FaceVO;
 import com.appcnd.find.api.pojo.vo.ImageVO;
 import com.appcnd.find.api.service.IDrawService;
 import com.appcnd.find.api.util.AnimatedGifEncoder;
+import com.appcnd.find.api.util.BaiduFaceUtil;
 import com.appcnd.find.api.util.BaiduUtils;
 import com.appcnd.find.api.util.BaseUtil;
 import com.appcnd.find.api.util.ImageUtils;
@@ -54,7 +56,7 @@ public class DrawServiceImpl implements IDrawService {
     @Resource
     private IUserDAO userDAO;
     @Autowired
-    private BaiduUtils baiduUtils;
+    private BaiduFaceUtil baiduUtils;
 
     @Transactional
     @Override
@@ -164,11 +166,11 @@ public class DrawServiceImpl implements IDrawService {
 //            imageDAO.insertPic(imagePO);
             //图像识别
             String image = BaseUtil.getBase64(multipartFile.getInputStream(), false);
-            BaiduUtils.Detect detect = baiduUtils.detect(image);
+            BaiduResult baiduResult = baiduUtils.detect(image);
             List<FaceVO> faceVOS = new ArrayList<>();
-            for (BaiduUtils.DetectResult detectResult : detect.getResult()) {
-                faceVOS.add(BaiduUtils.getFace(detectResult));
-            }
+//            for (BaiduUtils.DetectResult detectResult : detect.getResult()) {
+//                faceVOS.add(BaiduUtils.getFace(detectResult));
+//            }
             return faceVOS;
         } catch (IOException e) {
             LOGGER.error("{}", e);

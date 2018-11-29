@@ -8,7 +8,7 @@ import java.util.List;
  * @author nihao 2018/11/28
  */
 @Data
-public class Baidu {
+public class BaiduResult {
     private Integer face_num;
     private List<Face> face_list;
 }

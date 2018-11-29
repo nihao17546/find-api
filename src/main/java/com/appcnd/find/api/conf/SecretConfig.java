@@ -22,6 +22,9 @@ public class SecretConfig {
     private String appSecret = null;
     private String baiduAppId = null;
     private String baiduSecretKey = null;
+    private String baiduFaceAppId = null;
+    private String baiduFaceAppkey = null;
+    private String baiduFaceSecretKey = null;
 
     @Resource
     private ISecretDAO secretDAO;
@@ -35,5 +38,8 @@ public class SecretConfig {
         appSecret = map.get("微信appSecret").getValue().trim();
         baiduAppId = map.get("百度appId").getValue().trim();
         baiduSecretKey = map.get("百度secretKey").getValue().trim();
+        baiduFaceAppId = map.get("baidu#face#appId").getValue().trim();
+        baiduFaceAppkey = map.get("baidu#face#appKey").getValue().trim();
+        baiduFaceSecretKey = map.get("baidu#face#secretKey").getValue().trim();
     }
 }

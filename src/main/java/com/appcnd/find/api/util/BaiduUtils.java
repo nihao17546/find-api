@@ -147,48 +147,49 @@ public class BaiduUtils {
 
     private static DecimalFormat df = new DecimalFormat("######0");
     public static FaceVO getFace(DetectResult detectResult){
-        FaceVO faceVO = new FaceVO();
-        if("male".equals(detectResult.getGender())){
-            faceVO.setGender("男");
-        }
-        else{
-            faceVO.setGender("女");
-        }
-        faceVO.setGenderProbability(detectResult.getGender_probability());
-        faceVO.setAge(Integer.parseInt(df.format(detectResult.getAge())));
-        faceVO.setBeauty(df.format(detectResult.getBeauty()));
-        if(detectResult.getExpression() == 0){
-            faceVO.setExpression("正常");
-        }
-        else if(detectResult.getExpression() == 1){
-            faceVO.setExpression("微笑");
-        }
-        else{
-            faceVO.setExpression("大笑");
-        }
-        faceVO.setExpressionProbablity(detectResult.getExpression_probablity());
-        faceVO.setGlasses(detectResult.getGlasses() == 0 ? "没戴" : (detectResult.getGlasses() == 2 ? "墨镜" : "戴了的"));
-        faceVO.setGlassesProbability(detectResult.getGlasses_probability());
-        if("yellow".equals(detectResult.getRace())){
-            faceVO.setRace("黄种人");
-        }
-        else if("white".equals(detectResult.getRace())){
-            faceVO.setRace("白人");
-        }
-        else if("black".equals(detectResult.getRace())){
-            faceVO.setRace("黑人");
-        }
-        else{
-            faceVO.setRace("阿拉伯人");
-        }
-        faceVO.setRaceProbability(detectResult.getRace_probability());
-        faceVO.setHuman(detectResult.getQualities().getType().getHuman());
-        faceVO.setCartoon(detectResult.getQualities().getType().getCartoon());
-        faceVO.setTop(detectResult.getLocation().getTop());
-        faceVO.setLeft(detectResult.getLocation().getLeft());
-        faceVO.setWidth(detectResult.getLocation().getWidth());
-        faceVO.setHeight(detectResult.getLocation().getHeight());
-        return faceVO;
+//        FaceVO faceVO = new FaceVO();
+//        if("male".equals(detectResult.getGender())){
+//            faceVO.setGender("男");
+//        }
+//        else{
+//            faceVO.setGender("女");
+//        }
+//        faceVO.setGenderProbability(detectResult.getGender_probability());
+//        faceVO.setAge(Integer.parseInt(df.format(detectResult.getAge())));
+//        faceVO.setBeauty(df.format(detectResult.getBeauty()));
+//        if(detectResult.getExpression() == 0){
+//            faceVO.setExpression("正常");
+//        }
+//        else if(detectResult.getExpression() == 1){
+//            faceVO.setExpression("微笑");
+//        }
+//        else{
+//            faceVO.setExpression("大笑");
+//        }
+//        faceVO.setExpressionProbablity(detectResult.getExpression_probablity());
+//        faceVO.setGlasses(detectResult.getGlasses() == 0 ? "没戴" : (detectResult.getGlasses() == 2 ? "墨镜" : "戴了的"));
+//        faceVO.setGlassesProbability(detectResult.getGlasses_probability());
+//        if("yellow".equals(detectResult.getRace())){
+//            faceVO.setRace("黄种人");
+//        }
+//        else if("white".equals(detectResult.getRace())){
+//            faceVO.setRace("白人");
+//        }
+//        else if("black".equals(detectResult.getRace())){
+//            faceVO.setRace("黑人");
+//        }
+//        else{
+//            faceVO.setRace("阿拉伯人");
+//        }
+//        faceVO.setRaceProbability(detectResult.getRace_probability());
+//        faceVO.setHuman(detectResult.getQualities().getType().getHuman());
+//        faceVO.setCartoon(detectResult.getQualities().getType().getCartoon());
+//        faceVO.setTop(detectResult.getLocation().getTop());
+//        faceVO.setLeft(detectResult.getLocation().getLeft());
+//        faceVO.setWidth(detectResult.getLocation().getWidth());
+//        faceVO.setHeight(detectResult.getLocation().getHeight());
+//        return faceVO;
+        return null;
     }
 
     @Data
