@@ -50,6 +50,9 @@ public class BaiduFaceUtil {
                 throw new FindException("抱歉，服务异常，请稍后再试！");
             }
         }
+        else if (!jsonObject.isNull("error_code") && jsonObject.get("error_code").toString().equals("222202")) {
+            return new BaiduResult();
+        }
         LOGGER.error("百度人脸检测响应结果：{}", jsonObject.toString());
         throw new FindException("抱歉，服务异常，请稍后再试！");
     }

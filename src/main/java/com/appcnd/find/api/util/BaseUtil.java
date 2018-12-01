@@ -1,13 +1,12 @@
 package com.appcnd.find.api.util;
 
+import com.appcnd.find.api.exception.FindException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,23 +79,43 @@ public class BaseUtil {
     }
 
     private static BASE64Encoder encoder = new BASE64Encoder();
-    public static String getBase64(InputStream inputStream, Boolean close){
-        String s = null;
+    public static String getBase64(InputStream inputStream) throws FindException {
         try {
-            s = encoder.encode(toByteArray(inputStream));
+            return encoder.encode(toByteArray(inputStream));
         } catch (Exception e) {
             logger.error("转base64错误", e);
+            throw new FindException("获取BASE64异常");
         }finally {
-            if(close != null && close){
-                if(inputStream != null){
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        logger.error("close InputStream error", e);
-                    }
-                }
+            closeInputStream(inputStream);
+        }
+    }
+    public static String getBase64(byte[] bytes) {
+        return encoder.encode(bytes);
+    }
+
+    public static void copyInputStreamToFile(InputStream source, File file) throws FindException {
+        int index;
+        byte[] bytes = new byte[1024];
+        try (FileOutputStream downloadFile = new FileOutputStream(file)) {
+            while ((index = source.read(bytes)) != -1) {
+                downloadFile.write(bytes, 0, index);
+                downloadFile.flush();
+            }
+        } catch (IOException e) {
+            logger.error("转File错误", e);
+            throw new FindException("保存FILE异常");
+        } finally {
+            closeInputStream(source);
+        }
+    }
+
+    public static void closeInputStream(InputStream inputStream) {
+        if(inputStream != null){
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                logger.error("close InputStream error", e);
             }
         }
-        return s;
     }
 }

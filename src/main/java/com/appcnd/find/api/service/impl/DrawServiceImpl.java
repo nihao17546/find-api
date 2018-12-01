@@ -6,24 +6,27 @@ import com.appcnd.find.api.exception.FindException;
 import com.appcnd.find.api.pojo.StaticConstant;
 import com.appcnd.find.api.pojo.json.FontText;
 import com.appcnd.find.api.pojo.json.baidu.BaiduResult;
+import com.appcnd.find.api.pojo.json.baidu.Face;
 import com.appcnd.find.api.pojo.po.ImagePO;
 import com.appcnd.find.api.pojo.po.UserFavoPO;
+import com.appcnd.find.api.pojo.vo.FaceListVO;
 import com.appcnd.find.api.pojo.vo.FaceVO;
 import com.appcnd.find.api.pojo.vo.ImageVO;
 import com.appcnd.find.api.service.IDrawService;
 import com.appcnd.find.api.util.AnimatedGifEncoder;
 import com.appcnd.find.api.util.BaiduFaceUtil;
-import com.appcnd.find.api.util.BaiduUtils;
 import com.appcnd.find.api.util.BaseUtil;
 import com.appcnd.find.api.util.ImageUtils;
 import com.appcnd.find.api.util.QINIUUtils;
 import com.appcnd.find.api.util.SimpleDateUtil;
 import com.appcnd.find.api.util.Strings;
 import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,10 +36,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,6 +57,9 @@ public class DrawServiceImpl implements IDrawService {
     private IUserDAO userDAO;
     @Autowired
     private BaiduFaceUtil baiduUtils;
+
+    @Value("${face.file.path}")
+    private String faceFilePath;
 
     @Transactional
     @Override
@@ -139,42 +142,70 @@ public class DrawServiceImpl implements IDrawService {
 
     @Transactional
     @Override
-    public List<FaceVO> drawFace(MultipartFile multipartFile, Long uid) throws FindException {
+    public FaceListVO drawFace(MultipartFile multipartFile, Long uid) throws FindException {
         String today = SimpleDateUtil.shortFormat(new Date()).replaceAll("-","");
         String fileName = UUID.randomUUID().toString() + "-" + multipartFile.getOriginalFilename();
-        String sourcePath = "/mydata/ftp/face/" + today + "/" + uid + "/" + fileName;
+        String sourcePath = faceFilePath.replace("{today}", today)
+                .replace("{uid}", uid.toString()).replace("{fileName}", fileName);
         File file = new File(sourcePath);
         if(!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
         }
+        ByteArrayInputStream byteArrayInputStream = null;
         try {
-            Thumbnails.of(multipartFile.getInputStream()).size(500,500).toFile(file);
+            byte[] bytes = multipartFile.getBytes();
+            String imageBase64 = BaseUtil.getBase64(bytes);
+            FileUtils.writeByteArrayToFile(file, bytes, true);
+            byteArrayInputStream = new ByteArrayInputStream(bytes);
+            BufferedImage bufferedImage = ImageIO.read(byteArrayInputStream);
+            int width = bufferedImage.getWidth(null);
+            int height = bufferedImage.getHeight(null);
+
             String url = sourcePath.replace("/mydata/ftp", StaticConstant.FDFS_PREFIX);
             //数据库存储
             ImagePO imagePO = new ImagePO();
             imagePO.setTitle("用户上传照片" + uid);
             imagePO.setCompressSrc(url);
             imagePO.setSrc(url);
-            ImageIcon imgIcon = new ImageIcon(sourcePath);
-            Image img = imgIcon.getImage();
-            int width = img.getWidth(null);
-            int height = img.getHeight(null);
             imagePO.setWidth(width);
             imagePO.setHeight(height);
             imagePO.setUid(uid);
             imagePO.setFlag(2);
-//            imageDAO.insertPic(imagePO);
+            imageDAO.insertPic(imagePO);
+
             //图像识别
-            String image = BaseUtil.getBase64(multipartFile.getInputStream(), false);
-            BaiduResult baiduResult = baiduUtils.detect(image);
+            BaiduResult baiduResult = baiduUtils.detect(imageBase64);
             List<FaceVO> faceVOS = new ArrayList<>();
-//            for (BaiduUtils.DetectResult detectResult : detect.getResult()) {
-//                faceVOS.add(BaiduUtils.getFace(detectResult));
-//            }
-            return faceVOS;
+            FaceListVO faceListVO = new FaceListVO();
+            faceListVO.setWidth(width);
+            faceListVO.setHeight(height);
+            if (baiduResult.getFace_num() > 0) {
+                int num = 65;
+                for (Face face : baiduResult.getFace_list()) {
+                    FaceVO faceVO = new FaceVO();
+                    faceVO.setNum(((char) num ++) + "");
+                    faceVO.setGender(face.getGender().getType());
+                    faceVO.setAge(face.getAge().intValue());
+                    faceVO.setBeauty(face.getBeauty().intValue());
+                    faceVO.setExpression(face.getExpression().getType());
+                    faceVO.setFaceShape(face.getFace_shape().getType());
+                    faceVO.setGlasses(face.getGlasses().getType());
+                    faceVO.setRace(face.getRace().getType());
+                    faceVO.setFaceType(face.getFace_type().getType());
+                    faceVO.setLocation(face.getLocation());
+                    faceVO.setDescription();
+                    faceVOS.add(faceVO);
+                }
+            }
+            faceListVO.setFaces(faceVOS);
+            return faceListVO;
         } catch (IOException e) {
             LOGGER.error("{}", e);
             throw new FindException("抱歉，服务异常，请稍后再试！");
+        } finally {
+            if (byteArrayInputStream != null) {
+                BaseUtil.closeInputStream(byteArrayInputStream);
+            }
         }
     }
 }

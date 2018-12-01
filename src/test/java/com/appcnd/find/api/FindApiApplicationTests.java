@@ -66,7 +66,7 @@ public class FindApiApplicationTests {
     @Test
     public void testFace() throws FileNotFoundException, FindException {
         File file = new File("C:\\Users\\admin\\Desktop\\2.jpg");
-        String image = BaseUtil.getBase64(new FileInputStream(file), false);
+        String image = BaseUtil.getBase64(new FileInputStream(file));
         BaiduResult result = baiduFaceUtil.detect(image);
         System.out.println("-");
     }
