@@ -6,6 +6,7 @@ import com.appcnd.find.api.conf.SecretConfig;
 import com.appcnd.find.api.dao.IUserDAO;
 import com.appcnd.find.api.exception.FindException;
 import com.appcnd.find.api.pojo.json.LoginRes;
+import com.appcnd.find.api.pojo.po.UserFavoPO;
 import com.appcnd.find.api.pojo.vo.UserVO;
 import com.appcnd.find.api.pojo.json.UserInfo;
 import com.appcnd.find.api.pojo.po.UserPO;
@@ -86,6 +87,14 @@ public class UserServiceImpl implements IUserService {
             throw new FindException("登录验证失败");
         }
         return getUserVO(userPO);
+    }
+
+    @Override
+    public int favo(Long uid, Long picId) {
+        UserFavoPO userFavoPO = new UserFavoPO();
+        userFavoPO.setUid(uid);
+        userFavoPO.setPicId(picId);
+        return userDAO.insertFavo(userFavoPO);
     }
 
     private UserVO getUserVO(UserPO userPO) throws FindException {

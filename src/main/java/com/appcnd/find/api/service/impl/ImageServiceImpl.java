@@ -5,8 +5,10 @@ import com.appcnd.find.api.dao.ImageDAO;
 import com.appcnd.find.api.pojo.po.ImagePO;
 import com.appcnd.find.api.pojo.result.SearchResult;
 import com.appcnd.find.api.pojo.vo.ImageVO;
+import com.appcnd.find.api.pojo.vo.ListVO;
 import com.appcnd.find.api.service.IImageService;
 import com.appcnd.find.api.util.Strings;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -105,6 +107,27 @@ public class ImageServiceImpl implements IImageService {
     @Override
     public SearchResult query(String key, int page, int rows, String sort, String asc) {
         return query(config.getDefaultQuery(), key, page, rows, sort, asc);
+    }
+
+    @Override
+    public ListVO<ImageVO> getFavo(Long uid, Integer curPage, Integer pageSize) {
+        ListVO<ImageVO> listVO = new ListVO<>(curPage, pageSize);
+        long count = imageDAO.selectOwnCount(uid);
+        if (count == 0) {
+            listVO.setTotalCount(count);
+            return listVO;
+        }
+        List<ImagePO> list = imageDAO.selectOwnFavo(uid, new RowBounds((curPage - 1) * pageSize, pageSize));
+        List<ImageVO> imageVOList = list.stream().map(po -> {
+            ImageVO imageVO = new ImageVO();
+            BeanUtils.copyProperties(po, imageVO);
+            imageVO.setCompressSrc(Strings.compileUrl(imageVO.getCompressSrc()));
+            imageVO.setSrc(Strings.compileUrl(imageVO.getSrc()));
+            return imageVO;
+        }).collect(Collectors.toList());
+        listVO.setTotalCount(count);
+        listVO.setList(imageVOList);
+        return listVO;
     }
 
     private ImageVO convert(SolrDocument document){

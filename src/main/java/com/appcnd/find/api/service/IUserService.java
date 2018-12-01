@@ -13,4 +13,6 @@ public interface IUserService {
     UserVO wxLogin(LoginRes loginRes) throws FindException;
 
     UserVO login(Long id) throws FindException;
+
+    int favo(Long uid,Long picId);
 }

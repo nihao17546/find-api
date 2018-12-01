@@ -2,6 +2,7 @@ package com.appcnd.find.api.service;
 
 import com.appcnd.find.api.pojo.result.SearchResult;
 import com.appcnd.find.api.pojo.vo.ImageVO;
+import com.appcnd.find.api.pojo.vo.ListVO;
 
 import java.util.List;
 
@@ -17,4 +18,5 @@ public interface IImageService {
 
     SearchResult query(String key,int page, int rows,String sort,String asc);
 
+    ListVO<ImageVO> getFavo(Long uid,Integer curPage,Integer pageSize);
 }

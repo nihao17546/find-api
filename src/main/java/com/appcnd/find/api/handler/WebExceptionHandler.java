@@ -10,6 +10,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,6 +41,10 @@ public class WebExceptionHandler {
         else if (e instanceof MissingServletRequestParameterException) {
             errorMsg = "【请求参数不全】" + e.getMessage();
             code = HttpStatus.SC_BAD_REQUEST;
+        }
+        else if (e instanceof MaxUploadSizeExceededException) {
+            code = HttpStatus.SC_ACCEPTED;
+            errorMsg = "文件大小不能超过8M";
         }
         else {
             errorMsg = "抱歉，系统异常，异常信息：" + e.getMessage();

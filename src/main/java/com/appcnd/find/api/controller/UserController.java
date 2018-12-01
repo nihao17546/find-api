@@ -1,5 +1,6 @@
 package com.appcnd.find.api.controller;
 
+import com.appcnd.find.api.dao.IUserDAO;
 import com.appcnd.find.api.exception.FindException;
 import com.appcnd.find.api.pojo.json.LoginRes;
 import com.appcnd.find.api.pojo.vo.UserVO;
@@ -8,7 +9,10 @@ import com.appcnd.find.api.util.DesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 /**
  * @author nihao 2018/11/22
@@ -20,6 +24,8 @@ public class UserController extends BaseController {
 
     @Autowired
     private IUserService userService;
+    @Resource
+    private IUserDAO userDAO;
 
     @RequestMapping("/auth")
     public String auth(@RequestBody LoginRes loginRes) {
@@ -50,5 +56,22 @@ public class UserController extends BaseController {
         } catch (FindException e) {
             return fail(e.getMessage()).json();
         }
+    }
+
+    @RequestMapping("/favo")
+    public String favo(@Value("#{request.getAttribute('uid')}") Long uid, @RequestParam Long picId) {
+        int result = userService.favo(uid, picId);
+        if(result==1){
+            return ok("收藏成功").json();
+        }
+        else {
+            return ok("已经收藏过了").json();
+        }
+    }
+
+    @RequestMapping("/rmFavo")
+    public String rmFavo(@Value("#{request.getAttribute('uid')}") Long uid, @RequestParam Long picId) {
+        userDAO.deleteFavo(uid, picId);
+        return ok().json();
     }
 }
