@@ -1,9 +1,13 @@
 package com.appcnd.find.api.service.impl;
 
 import com.appcnd.find.api.conf.ProgramConfig;
+import com.appcnd.find.api.dao.IUserDAO;
 import com.appcnd.find.api.dao.ImageDAO;
+import com.appcnd.find.api.pojo.dto.FavoImageDTO;
 import com.appcnd.find.api.pojo.po.ImagePO;
+import com.appcnd.find.api.pojo.po.UserPO;
 import com.appcnd.find.api.pojo.result.SearchResult;
+import com.appcnd.find.api.pojo.vo.FavoImageVO;
 import com.appcnd.find.api.pojo.vo.ImageVO;
 import com.appcnd.find.api.pojo.vo.ListVO;
 import com.appcnd.find.api.service.IImageService;
@@ -25,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +42,8 @@ public class ImageServiceImpl implements IImageService {
 
     @Resource
     private ImageDAO imageDAO;
+    @Resource
+    private IUserDAO userDAO;
 
     @Autowired
     private ProgramConfig config;
@@ -110,21 +117,40 @@ public class ImageServiceImpl implements IImageService {
     }
 
     @Override
-    public ListVO<ImageVO> getFavo(Long uid, Integer curPage, Integer pageSize) {
-        ListVO<ImageVO> listVO = new ListVO<>(curPage, pageSize);
+    public ListVO<FavoImageVO> getFavo(Long uid, Integer curPage, Integer pageSize) {
+        ListVO<FavoImageVO> listVO = new ListVO<>(curPage, pageSize);
         long count = imageDAO.selectOwnCount(uid);
         if (count == 0) {
             listVO.setTotalCount(count);
             return listVO;
         }
-        List<ImagePO> list = imageDAO.selectOwnFavo(uid, new RowBounds((curPage - 1) * pageSize, pageSize));
-        List<ImageVO> imageVOList = list.stream().map(po -> {
-            ImageVO imageVO = new ImageVO();
-            BeanUtils.copyProperties(po, imageVO);
+        List<FavoImageDTO> list = imageDAO.selectOwnFavo(uid, new RowBounds((curPage - 1) * pageSize, pageSize));
+        List<Long> uids = new ArrayList<>();
+        List<FavoImageVO> imageVOList = list.stream().map(dto -> {
+            FavoImageVO imageVO = new FavoImageVO();
+            BeanUtils.copyProperties(dto, imageVO);
             imageVO.setCompressSrc(Strings.compileUrl(imageVO.getCompressSrc()));
             imageVO.setSrc(Strings.compileUrl(imageVO.getSrc()));
+            if (!uids.contains(dto.getUid())) {
+                uids.add(dto.getUid());
+            }
             return imageVO;
         }).collect(Collectors.toList());
+        Map<Long,UserPO> userPOMap = null;
+        if (!uids.isEmpty()) {
+            userPOMap = userDAO.selectByIds(uids);
+        }
+        for (FavoImageVO imageVO : imageVOList) {
+            if (userPOMap != null && !userPOMap.isEmpty()) {
+                UserPO userPO = userPOMap.get(imageVO.getUid());
+                if (userPO != null) {
+                    imageVO.setUserName(userPO.getNickname());
+                }
+            }
+            if (imageVO.getUserName() == null) {
+                imageVO.setUserName("佚名");
+            }
+        }
         listVO.setTotalCount(count);
         listVO.setList(imageVOList);
         return listVO;

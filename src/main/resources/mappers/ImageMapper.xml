@@ -11,8 +11,8 @@
         select count(*) from tb_user_favo a,tb_image b
         where a.uid=#{uid} and a.pic_id=b.id
     </select>
-    <select id="selectOwnFavo" resultType="com.appcnd.find.api.pojo.po.ImagePO">
-        select b.* from tb_user_favo a,tb_image b
+    <select id="selectOwnFavo" resultType="com.appcnd.find.api.pojo.dto.FavoImageDTO">
+        select b.*,a.created_at as favo_date from tb_user_favo a,tb_image b
         where a.uid=#{uid} and a.pic_id=b.id
         order by a.created_at desc
     </select>
@@ -21,4 +21,7 @@
         insert into tb_image(title,compress_src,src,width,height,created_at,flag,uid)
         values(#{title},#{compressSrc},#{src},#{width},#{height},now(),#{flag},#{uid})
     </insert>
+    <select id="selectById" resultType="com.appcnd.find.api.pojo.po.ImagePO">
+        select * from tb_image where id=#{id}
+    </select>
 </mapper>

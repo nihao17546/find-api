@@ -31,4 +31,10 @@
     <select id="selectById" resultType="com.appcnd.find.api.pojo.po.UserPO">
         select * from tb_user where id=#{id}
     </select>
+    <select id="selectByIds" resultType="com.appcnd.find.api.pojo.po.UserPO">
+        select id,nickname from tb_user where id in
+        <foreach collection="ids" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

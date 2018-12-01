@@ -3,14 +3,19 @@ package com.appcnd.find.api.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.appcnd.find.api.conf.ProgramConfig;
 import com.appcnd.find.api.conf.SecretConfig;
+import com.appcnd.find.api.dao.IMessageDAO;
 import com.appcnd.find.api.dao.IUserDAO;
+import com.appcnd.find.api.dao.ImageDAO;
 import com.appcnd.find.api.exception.FindException;
 import com.appcnd.find.api.pojo.json.LoginRes;
+import com.appcnd.find.api.pojo.po.ImagePO;
+import com.appcnd.find.api.pojo.po.MessagePO;
 import com.appcnd.find.api.pojo.po.UserFavoPO;
 import com.appcnd.find.api.pojo.vo.UserVO;
 import com.appcnd.find.api.pojo.json.UserInfo;
 import com.appcnd.find.api.pojo.po.UserPO;
 import com.appcnd.find.api.service.IUserService;
+import com.appcnd.find.api.util.AsynUtil;
 import com.appcnd.find.api.util.DesUtil;
 import com.appcnd.find.api.util.HttpClientUtils;
 import com.appcnd.find.api.util.Strings;
@@ -19,8 +24,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,12 +40,19 @@ public class UserServiceImpl implements IUserService {
 
     @Resource
     private IUserDAO userDAO;
+    @Resource
+    private IMessageDAO messageDAO;
+    @Resource
+    private ImageDAO imageDAO;
 
     @Autowired
     private ProgramConfig programConfig;
 
     @Autowired
     private SecretConfig secretConfig;
+    @Autowired
+    private AsynUtil asynUtil;
+
 
     @Override
     public UserVO wxLogin(LoginRes loginRes) throws FindException {
@@ -89,12 +103,36 @@ public class UserServiceImpl implements IUserService {
         return getUserVO(userPO);
     }
 
+    @Transactional
     @Override
     public int favo(Long uid, Long picId) {
         UserFavoPO userFavoPO = new UserFavoPO();
         userFavoPO.setUid(uid);
         userFavoPO.setPicId(picId);
-        return userDAO.insertFavo(userFavoPO);
+        int i = userDAO.insertFavo(userFavoPO);
+        if (i == 1) {
+            asynUtil.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        ImagePO imagePO = imageDAO.selectById(picId);
+                        UserPO userPO = userDAO.selectById(uid);
+                        MessagePO messagePO = new MessagePO();
+                        messagePO.setFromUid(0L);
+                        messagePO.setToUid(imagePO.getUid());
+                        messagePO.setTitle("系统消息");
+                        messagePO.setContent(new StringBuilder("你的图片【").append(imagePO.getTitle())
+                                .append("】被【").append(userPO.getNickname())
+                                .append("】收藏了。").toString());
+                        messagePO.setCreatedAt(new Date());
+                        messageDAO.insert(messagePO);
+                    } catch (Exception e) {
+                        LOGGER.error("异步处理收藏消息错误", e);
+                    }
+                }
+            });
+        }
+        return i;
     }
 
     private UserVO getUserVO(UserPO userPO) throws FindException {

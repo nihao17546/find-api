@@ -1,6 +1,7 @@
 package com.appcnd.find.api.controller;
 
 import com.appcnd.find.api.pojo.result.SearchResult;
+import com.appcnd.find.api.pojo.vo.FavoImageVO;
 import com.appcnd.find.api.pojo.vo.ImageVO;
 import com.appcnd.find.api.pojo.vo.ListVO;
 import com.appcnd.find.api.service.IImageService;
@@ -44,8 +45,8 @@ public class ImageController extends BaseController {
     @RequestMapping("/fave")
     public String fave(@Value("#{request.getAttribute('uid')}") Long uid,
                        @RequestParam(required = false, defaultValue = "1") Integer curPage,
-                       @RequestParam(required = false, defaultValue = "9") Integer pageSize){
-        ListVO<ImageVO> listVO = imageService.getFavo(uid, curPage, pageSize);
+                       @RequestParam(required = false, defaultValue = "10") Integer pageSize){
+        ListVO<FavoImageVO> listVO = imageService.getFavo(uid, curPage, pageSize);
         return ok().pull("response", listVO).json();
     }
 
