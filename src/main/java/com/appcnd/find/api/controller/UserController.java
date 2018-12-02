@@ -74,4 +74,11 @@ public class UserController extends BaseController {
         userDAO.deleteFavo(uid, picId);
         return ok().json();
     }
+
+    @RequestMapping("/share")
+    public String share(@Value("#{request.getAttribute('uid')}") Long uid,
+                        @RequestParam(required = false) Long faceResultId,
+                        @RequestParam(required = false) String shareImg) {
+        return ok("分享成功").json();
+    }
 }

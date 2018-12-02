@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.appcnd.find.api.dao.IFaceResultDAO">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.appcnd.find.api.pojo.po.FaceResultPO">
+        insert into tb_face_result(uid,json,pic_id,created_at)
+        values(#{uid},#{json},#{picId},now())
+    </insert>
+    <select id="selectById" resultType="com.appcnd.find.api.pojo.po.FaceResultPO">
+        select * from tb_face_result where id=#{id}
+    </select>
+</mapper>

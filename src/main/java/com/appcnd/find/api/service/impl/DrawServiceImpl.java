@@ -1,5 +1,7 @@
 package com.appcnd.find.api.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.appcnd.find.api.dao.IFaceResultDAO;
 import com.appcnd.find.api.dao.IUserDAO;
 import com.appcnd.find.api.dao.ImageDAO;
 import com.appcnd.find.api.exception.FindException;
@@ -7,6 +9,7 @@ import com.appcnd.find.api.pojo.StaticConstant;
 import com.appcnd.find.api.pojo.json.FontText;
 import com.appcnd.find.api.pojo.json.baidu.BaiduResult;
 import com.appcnd.find.api.pojo.json.baidu.Face;
+import com.appcnd.find.api.pojo.po.FaceResultPO;
 import com.appcnd.find.api.pojo.po.ImagePO;
 import com.appcnd.find.api.pojo.po.UserFavoPO;
 import com.appcnd.find.api.pojo.vo.FaceListVO;
@@ -55,6 +58,8 @@ public class DrawServiceImpl implements IDrawService {
     private ImageDAO imageDAO;
     @Resource
     private IUserDAO userDAO;
+    @Resource
+    private IFaceResultDAO faceResultDAO;
     @Autowired
     private BaiduFaceUtil baiduUtils;
 
@@ -151,6 +156,11 @@ public class DrawServiceImpl implements IDrawService {
         if(!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
         }
+
+        String url = sourcePath.replace("/mydata/ftp", "${fdfs}");
+        Integer width = null, height = null;
+        FaceListVO faceListVO = null;
+
         ByteArrayInputStream byteArrayInputStream = null;
         try {
             byte[] bytes = multipartFile.getBytes();
@@ -158,25 +168,12 @@ public class DrawServiceImpl implements IDrawService {
             FileUtils.writeByteArrayToFile(file, bytes, true);
             byteArrayInputStream = new ByteArrayInputStream(bytes);
             BufferedImage bufferedImage = ImageIO.read(byteArrayInputStream);
-            int width = bufferedImage.getWidth(null);
-            int height = bufferedImage.getHeight(null);
-
-            String url = sourcePath.replace("/mydata/ftp", StaticConstant.FDFS_PREFIX);
-            //数据库存储
-            ImagePO imagePO = new ImagePO();
-            imagePO.setTitle("用户上传照片" + uid);
-            imagePO.setCompressSrc(url);
-            imagePO.setSrc(url);
-            imagePO.setWidth(width);
-            imagePO.setHeight(height);
-            imagePO.setUid(uid);
-            imagePO.setFlag(2);
-            imageDAO.insertPic(imagePO);
-
+            width = bufferedImage.getWidth(null);
+            height = bufferedImage.getHeight(null);
             //图像识别
             BaiduResult baiduResult = baiduUtils.detect(imageBase64);
             List<FaceVO> faceVOS = new ArrayList<>();
-            FaceListVO faceListVO = new FaceListVO();
+            faceListVO = new FaceListVO();
             faceListVO.setWidth(width);
             faceListVO.setHeight(height);
             if (baiduResult.getFace_num() > 0) {
@@ -198,7 +195,8 @@ public class DrawServiceImpl implements IDrawService {
                 }
             }
             faceListVO.setFaces(faceVOS);
-            return faceListVO;
+            faceListVO.setFaceUrl(url);
+            faceListVO.setShareMsg("快来围观");
         } catch (IOException e) {
             LOGGER.error("{}", e);
             throw new FindException("抱歉，服务异常，请稍后再试！");
@@ -207,5 +205,25 @@ public class DrawServiceImpl implements IDrawService {
                 BaseUtil.closeInputStream(byteArrayInputStream);
             }
         }
+
+        //数据库存储
+        ImagePO imagePO = new ImagePO();
+        imagePO.setTitle("用户上传照片" + uid);
+        imagePO.setCompressSrc(url);
+        imagePO.setSrc(url);
+        imagePO.setWidth(width);
+        imagePO.setHeight(height);
+        imagePO.setUid(uid);
+        imagePO.setFlag(2);
+        imageDAO.insertPic(imagePO);
+
+        FaceResultPO faceResultPO = new FaceResultPO();
+        faceResultPO.setUid(uid);
+        faceResultPO.setJson(JSON.toJSONString(faceListVO));
+        faceResultPO.setPicId(imagePO.getId());
+        faceResultDAO.insert(faceResultPO);
+
+        faceListVO.setFaceResultId(faceResultPO.getId());
+        return faceListVO;
     }
 }

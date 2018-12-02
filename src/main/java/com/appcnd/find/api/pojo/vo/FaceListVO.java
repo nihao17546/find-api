@@ -12,5 +12,8 @@ import java.util.List;
 public class FaceListVO {
     private Integer width;
     private Integer height;
+    private String faceUrl;
+    private String shareMsg;
+    private Long faceResultId;
     private List<FaceVO> faces;
 }
