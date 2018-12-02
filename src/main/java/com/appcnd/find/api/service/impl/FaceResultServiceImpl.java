@@ -8,6 +8,7 @@ import com.appcnd.find.api.pojo.po.UserPO;
 import com.appcnd.find.api.pojo.vo.FaceListVO;
 import com.appcnd.find.api.pojo.vo.FaceResultVO;
 import com.appcnd.find.api.service.IFaceResultService;
+import com.appcnd.find.api.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -41,8 +42,7 @@ public class FaceResultServiceImpl implements IFaceResultService {
         if (vo.getJson() != null) {
             vo.setFace(JSON.parseObject(vo.getJson(), FaceListVO.class));
         }
-        // TODO: 2018/12/2
-        vo.getFace().setFaceUrl("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1851068188,4073980570&fm=200&gp=0.jpg");
+        vo.getFace().setFaceUrl(Strings.compileUrl(vo.getFace().getFaceUrl()));
         return vo;
     }
 }
