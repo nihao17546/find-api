@@ -43,17 +43,19 @@ public class FindApiApplicationTests {
 
     @Test
     public void loadData() {
-        迁移图片数据(1L, 5000L);
-        迁移图片数据(5001L, 10000L);
-        迁移图片数据(10001L, 15000L);
-        迁移图片数据(15001L, 20000L);
-        迁移图片数据(20001L, 25000L);
-        迁移图片数据(25001L, 30000L);
-        迁移图片数据(30001L, 35000L);
+//        迁移图片数据(1L, 5000L);
+//        迁移图片数据(5001L, 10000L);
+//        迁移图片数据(10001L, 15000L);
+//        迁移图片数据(15001L, 20000L);
+//        迁移图片数据(20001L, 25000L);
+//        迁移图片数据(25001L, 30000L);
+//        迁移图片数据(30001L, 35000L);
+        迁移图片数据(35001L, 40000L);
     }
 
     @Test
     public void loadIndex() throws IOException, SolrServerException {
+//        solrService.deleteItem("*:*");
         同步索引(1L, 5000L);
         同步索引(5001L, 10000L);
         同步索引(10001L, 15000L);
@@ -61,6 +63,7 @@ public class FindApiApplicationTests {
         同步索引(20001L, 25000L);
         同步索引(25001L, 30000L);
         同步索引(30001L, 35000L);
+        同步索引(35001L, 40000L);
     }
 
     @Test

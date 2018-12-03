@@ -69,6 +69,6 @@
 
     <select id="selectIntoSolr" resultType="java.util.HashMap">
         select a.*,group_concat(c.name separator ',') as image_tag from tb_image a left join tb_image2tag b on a.id=b.image_id left join tb_tag c on c.id=b.tag_id
-        where flag=1 and a.id between #{sId} and #{eId} group by a.id
+        where a.flag=1 and a.id between #{sId} and #{eId} group by a.id
     </select>
 </mapper>

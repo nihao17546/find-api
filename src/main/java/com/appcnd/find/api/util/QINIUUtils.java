@@ -17,6 +17,7 @@ import java.util.Map;
 /**
  * Created by nihao on 17/9/5.
  */
+@Deprecated
 @Component
 public class QINIUUtils {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());

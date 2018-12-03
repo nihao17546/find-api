@@ -25,6 +25,7 @@ import java.util.Map;
 /**
  * Created by nihao on 17/9/7.
  */
+@Deprecated
 @Component
 public class BaiduUtils {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
