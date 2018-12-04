@@ -15,4 +15,5 @@ public class FaceResultPO {
     private String json;
     private Long picId;
     private Date createdAt;
+    private Boolean flag;
 }

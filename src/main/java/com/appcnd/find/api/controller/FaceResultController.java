@@ -22,7 +22,7 @@ public class FaceResultController extends BaseController {
     public String one(@RequestParam Long id) {
         FaceResultVO faceResultVO = faceResultService.getById(id);
         if (faceResultVO == null) {
-            return fail("抱歉，未找到对应分享数据！").json();
+            return fail("抱歉，该分享已过期！").json();
         }
         return ok().pull("response", faceResultVO).json();
     }

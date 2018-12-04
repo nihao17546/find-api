@@ -16,13 +16,7 @@ import com.appcnd.find.api.pojo.vo.FaceListVO;
 import com.appcnd.find.api.pojo.vo.FaceVO;
 import com.appcnd.find.api.pojo.vo.ImageVO;
 import com.appcnd.find.api.service.IDrawService;
-import com.appcnd.find.api.util.AnimatedGifEncoder;
-import com.appcnd.find.api.util.BaiduFaceUtil;
-import com.appcnd.find.api.util.BaseUtil;
-import com.appcnd.find.api.util.ImageUtils;
-import com.appcnd.find.api.util.QINIUUtils;
-import com.appcnd.find.api.util.SimpleDateUtil;
-import com.appcnd.find.api.util.Strings;
+import com.appcnd.find.api.util.*;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -62,6 +56,8 @@ public class DrawServiceImpl implements IDrawService {
     private IFaceResultDAO faceResultDAO;
     @Autowired
     private BaiduFaceUtil baiduUtils;
+    @Autowired
+    private QNUtils qnUtils;
 
     @Value("${face.file.path}")
     private String faceFilePath;
@@ -149,7 +145,7 @@ public class DrawServiceImpl implements IDrawService {
     @Override
     public FaceListVO drawFace(MultipartFile multipartFile, Long uid) throws FindException {
         String today = SimpleDateUtil.shortFormat(new Date()).replaceAll("-","");
-        String fileName = UUID.randomUUID().toString() + "-" + multipartFile.getOriginalFilename();
+        String fileName = UUID.randomUUID().toString() + multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
         String sourcePath = faceFilePath.replace("{today}", today)
                 .replace("{uid}", uid.toString()).replace("{fileName}", fileName);
         File file = new File(sourcePath);
@@ -157,10 +153,8 @@ public class DrawServiceImpl implements IDrawService {
             file.getParentFile().mkdirs();
         }
 
-        String url = sourcePath.replace("/mydata/ftp", "${fdfs}");
         Integer width = null, height = null;
         FaceListVO faceListVO = null;
-
         ByteArrayInputStream byteArrayInputStream = null;
         try {
             byte[] bytes = multipartFile.getBytes();
@@ -195,8 +189,6 @@ public class DrawServiceImpl implements IDrawService {
                 }
             }
             faceListVO.setFaces(faceVOS);
-            faceListVO.setFaceUrl(url);
-            faceListVO.setShareMsg("快来围观");
         } catch (IOException e) {
             LOGGER.error("{}", e);
             throw new FindException("抱歉，服务异常，请稍后再试！");
@@ -206,10 +198,18 @@ public class DrawServiceImpl implements IDrawService {
             }
         }
 
+        //上传七牛云
+        String key = sourcePath.replace("/mydata/ftp/", "");
+        boolean success = qnUtils.upload(sourcePath, key, "mydata");
+        if (!success) {
+            throw new FindException("抱歉，服务异常，请稍后再试！");
+        }
+
         //数据库存储
+        String url = "${mydata}/" + key;
         ImagePO imagePO = new ImagePO();
         imagePO.setTitle("用户上传照片" + uid);
-        imagePO.setCompressSrc(url);
+        imagePO.setCompressSrc(url + "-suofang");
         imagePO.setSrc(url);
         imagePO.setWidth(width);
         imagePO.setHeight(height);
@@ -224,6 +224,8 @@ public class DrawServiceImpl implements IDrawService {
         faceResultDAO.insert(faceResultPO);
 
         faceListVO.setFaceResultId(faceResultPO.getId());
+        faceListVO.setFaceUrl(url);
+        faceListVO.setShareMsg("快来围观");
         return faceListVO;
     }
 }
