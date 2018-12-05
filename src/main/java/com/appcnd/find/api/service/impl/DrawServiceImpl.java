@@ -217,6 +217,8 @@ public class DrawServiceImpl implements IDrawService {
         imagePO.setFlag(2);
         imageDAO.insertPic(imagePO);
 
+        faceListVO.setShareMsg("快来围观");
+
         FaceResultPO faceResultPO = new FaceResultPO();
         faceResultPO.setUid(uid);
         faceResultPO.setJson(JSON.toJSONString(faceListVO));
@@ -225,7 +227,6 @@ public class DrawServiceImpl implements IDrawService {
 
         faceListVO.setFaceResultId(faceResultPO.getId());
         faceListVO.setFaceUrl(url);
-        faceListVO.setShareMsg("快来围观");
         return faceListVO;
     }
 }

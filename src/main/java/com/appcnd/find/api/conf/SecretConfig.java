@@ -3,6 +3,8 @@ package com.appcnd.find.api.conf;
 import com.appcnd.find.api.dao.ISecretDAO;
 import com.appcnd.find.api.pojo.po.SecretPO;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
@@ -15,6 +17,7 @@ import java.util.Map;
 @Configuration
 @Data
 public class SecretConfig {
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private String accessKey = null;
     private String secretKey = null;
@@ -41,5 +44,21 @@ public class SecretConfig {
         baiduFaceAppId = map.get("baidu#face#appId").getValue().trim();
         baiduFaceAppkey = map.get("baidu#face#appKey").getValue().trim();
         baiduFaceSecretKey = map.get("baidu#face#secretKey").getValue().trim();
+        LOGGER.info("secret 配置 -> {}", this);
+    }
+
+    @Override
+    public String toString() {
+        return "SecretConfig{" +
+                "accessKey='" + accessKey + '\'' +
+                ", secretKey='" + secretKey + '\'' +
+                ", appId='" + appId + '\'' +
+                ", appSecret='" + appSecret + '\'' +
+                ", baiduAppId='" + baiduAppId + '\'' +
+                ", baiduSecretKey='" + baiduSecretKey + '\'' +
+                ", baiduFaceAppId='" + baiduFaceAppId + '\'' +
+                ", baiduFaceAppkey='" + baiduFaceAppkey + '\'' +
+                ", baiduFaceSecretKey='" + baiduFaceSecretKey + '\'' +
+                '}';
     }
 }
