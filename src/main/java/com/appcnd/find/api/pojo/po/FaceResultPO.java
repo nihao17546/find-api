@@ -16,4 +16,5 @@ public class FaceResultPO {
     private Long picId;
     private Date createdAt;
     private Boolean flag;
+    private String faceUrl;
 }

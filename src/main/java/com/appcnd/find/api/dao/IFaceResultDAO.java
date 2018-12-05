@@ -10,4 +10,5 @@ import org.apache.ibatis.annotations.Param;
 public interface IFaceResultDAO {
     int insert(FaceResultPO faceResultPO);
     FaceResultPO selectById(@Param("id") Long id);
+    int updateFaceUrl(@Param("id") Long id, @Param("faceUrl") String faceUrl);
 }

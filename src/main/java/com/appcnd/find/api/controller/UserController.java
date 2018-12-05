@@ -4,6 +4,7 @@ import com.appcnd.find.api.dao.IUserDAO;
 import com.appcnd.find.api.exception.FindException;
 import com.appcnd.find.api.pojo.json.LoginRes;
 import com.appcnd.find.api.pojo.vo.UserVO;
+import com.appcnd.find.api.service.IFaceResultService;
 import com.appcnd.find.api.service.IUserService;
 import com.appcnd.find.api.util.DesUtil;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
@@ -26,6 +28,8 @@ public class UserController extends BaseController {
     private IUserService userService;
     @Resource
     private IUserDAO userDAO;
+    @Autowired
+    private IFaceResultService faceResultService;
 
     @RequestMapping("/auth")
     public String auth(@RequestBody LoginRes loginRes) {
@@ -77,8 +81,13 @@ public class UserController extends BaseController {
 
     @RequestMapping("/share")
     public String share(@Value("#{request.getAttribute('uid')}") Long uid,
-                        @RequestParam(required = false) Long faceResultId,
-                        @RequestParam(required = false) String shareImg) {
-        return ok("分享成功").json();
+                        @RequestParam Long faceResultId,
+                        @RequestParam(value = "file") MultipartFile multipartFile) {
+        try {
+            String url = faceResultService.share(uid, faceResultId, multipartFile);
+            return ok("分享成功").pull("response", url).json();
+        } catch (FindException e) {
+            return fail(e.getMessage()).json();
+        }
     }
 }

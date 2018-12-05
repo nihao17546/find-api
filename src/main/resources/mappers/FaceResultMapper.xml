@@ -9,4 +9,7 @@
     <select id="selectById" resultType="com.appcnd.find.api.pojo.po.FaceResultPO">
         select * from tb_face_result where id=#{id}
     </select>
+    <update id="updateFaceUrl">
+        update tb_face_result set face_url=#{faceUrl} where id=#{id}
+    </update>
 </mapper>

@@ -62,7 +62,7 @@ public class DrawServiceImpl implements IDrawService {
     @Value("${face.file.path}")
     private String faceFilePath;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ImageVO drawLook(MultipartFile multipartFile, String word, Integer pos, Integer size,
                          String color, String family, Integer type, Long uid) throws FindException {
@@ -141,7 +141,7 @@ public class DrawServiceImpl implements IDrawService {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public FaceListVO drawFace(MultipartFile multipartFile, Long uid) throws FindException {
         String today = SimpleDateUtil.shortFormat(new Date()).replaceAll("-","");
@@ -199,17 +199,17 @@ public class DrawServiceImpl implements IDrawService {
         }
 
         //上传七牛云
-        String key = sourcePath.replace("/mydata/ftp/", "");
-        boolean success = qnUtils.upload(sourcePath, key, "mydata");
-        if (!success) {
-            throw new FindException("抱歉，服务异常，请稍后再试！");
-        }
+//        String key = sourcePath.replace("/mydata/ftp/", "");
+//        boolean success = qnUtils.upload(sourcePath, key, "mydata");
+//        if (!success) {
+//            throw new FindException("抱歉，服务异常，请稍后再试！");
+//        }
 
         //数据库存储
-        String url = "${mydata}/" + key;
+        String url = sourcePath.replace("/mydata/ftp", "${fdfs}");
         ImagePO imagePO = new ImagePO();
         imagePO.setTitle("用户上传照片" + uid);
-        imagePO.setCompressSrc(url + "-suofang");
+        imagePO.setCompressSrc(url);
         imagePO.setSrc(url);
         imagePO.setWidth(width);
         imagePO.setHeight(height);

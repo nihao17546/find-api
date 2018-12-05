@@ -14,6 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author nihao
@@ -54,6 +59,33 @@ public class QNUtils {
             }
         }
         return false;
+    }
+
+    public final boolean upload(InputStream inputStream, String key, String bucketname) {
+        try {
+            uploadManager.put(inputStream, key, auth.uploadToken(bucketname), null, getContentType(key));
+            return true;
+        } catch (QiniuException e) {
+            Response r = e.response;
+            LOGGER.error("上传文件错误,错误信息: {}", r.toString());
+            try {
+                LOGGER.error("上传文件错误,响应的文本信息: {}", r.bodyString());
+            } catch (QiniuException e1) {
+                //ignore
+            }
+        }
+        return false;
+    }
+
+    public final String getContentType(String filename){
+        String type = null;
+        Path path = Paths.get(filename);
+        try {
+            type = Files.probeContentType(path);
+        } catch (IOException e) {
+            LOGGER.error("解析文件mimeType错误,filename:{}", filename, e);
+        }
+        return type;
     }
 
     public final boolean delete(String bucketname, String key) {
