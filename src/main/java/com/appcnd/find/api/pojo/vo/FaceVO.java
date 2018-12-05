@@ -27,50 +27,50 @@ public class FaceVO {
         if ("human".equals(faceType)) {
             if ("male".equals(gender)) {
                 if (age <= 10) {
-                    sb.append("这个大概").append(age).append("岁的小男孩大");
+                    sb.append("这个小男孩").append(age).append("岁");
                 }
                 else if (age <= 16){
-                    sb.append("这个大概").append(age).append("岁的小伙子");
+                    sb.append("这个小伙子").append(age).append("岁");
                 }
                 else if (age <= 30){
-                    sb.append("这位大概").append(age).append("岁的帅哥");
+                    sb.append("这个帅哥").append(age).append("岁");
                 }
                 else if (age <= 55){
-                    sb.append("这位大概").append(age).append("岁的大叔");
+                    sb.append("这位大叔").append(age).append("岁");
                 }
                 else {
-                    sb.append("这位大概").append(age).append("岁老爷爷");
+                    sb.append("这位老爷爷").append(age).append("岁");
                 }
             }
             else if ("female".equals(gender)) {
                 if (age <= 10) {
-                    sb.append("这个大概").append(age).append("岁的小姑娘");
+                    sb.append("这个小姑娘").append(age).append("岁");
                 }
                 else if (age <= 16){
-                    sb.append("这个大概").append(age).append("岁的小女孩");
+                    sb.append("这个小女孩").append(age).append("岁");
                 }
                 else if (age <= 30){
-                    sb.append("这位大概").append(age).append("岁的美女");
+                    sb.append("这位美女").append(age).append("岁");
                 }
                 else if (age <= 55){
-                    sb.append("这位大概").append(age).append("岁的大婶");
+                    sb.append("这位大婶").append(age).append("岁");
                 }
                 else {
-                    sb.append("这位大概").append(age).append("岁的老奶奶");
+                    sb.append("这位老奶奶").append(age).append("岁");
                 }
             }
 
             if ("yellow".equals(race)) {
-                sb.append("，可能来自亚洲");
+                sb.append("，黄皮肤");
             }
             else if ("white".equals(race)) {
-                sb.append("，可能来自欧洲或者北美地区");
+                sb.append("，白种人");
             }
             else if ("black".equals(race)) {
-                sb.append("，可能来自非洲");
+                sb.append("，黑皮肤");
             }
             else if ("arabs".equals(race)) {
-                sb.append("，应该来自阿拉伯地区");
+                sb.append("，阿拉伯人");
             }
 
             if ("smile".equals(expression)) {
