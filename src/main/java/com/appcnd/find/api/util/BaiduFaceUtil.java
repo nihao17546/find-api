@@ -40,7 +40,9 @@ public class BaiduFaceUtil {
 
 
     public final BaiduResult detect(String image) throws FindException {
+        long startAt = System.currentTimeMillis();
         JSONObject jsonObject = client.detect(image, "BASE64", options);
+        LOGGER.info("图像识别消耗{}毫秒", System.currentTimeMillis() - startAt);
         if (!jsonObject.isNull("result")) {
             try {
                 BaiduResult baiduResult = JSON.parseObject(jsonObject.get("result").toString(), BaiduResult.class);
