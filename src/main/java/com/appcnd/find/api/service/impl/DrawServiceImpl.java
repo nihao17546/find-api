@@ -5,7 +5,6 @@ import com.appcnd.find.api.dao.IFaceResultDAO;
 import com.appcnd.find.api.dao.IUserDAO;
 import com.appcnd.find.api.dao.ImageDAO;
 import com.appcnd.find.api.exception.FindException;
-import com.appcnd.find.api.pojo.StaticConstant;
 import com.appcnd.find.api.pojo.json.FontText;
 import com.appcnd.find.api.pojo.json.baidu.BaiduResult;
 import com.appcnd.find.api.pojo.json.baidu.Face;
@@ -61,39 +60,50 @@ public class DrawServiceImpl implements IDrawService {
 
     @Value("${face.file.path}")
     private String faceFilePath;
+    @Value("${look.source.file.path}")
+    private String lookSourceFilePath;
+    @Value("${look.out.file.path}")
+    private String lookOutFilePath;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public ImageVO drawLook(MultipartFile multipartFile, String word, Integer pos, Integer size,
                          String color, String family, Integer type, Long uid) throws FindException {
+        // 获取当前日期
         String today = SimpleDateUtil.shortFormat(new Date()).replaceAll("-","");
-        String sourcePath = "/mydata/ftp/look/source/" + today + "/" + UUID.randomUUID().toString() + "-" + multipartFile.getOriginalFilename();
-        String outPath = "/mydata/ftp/look/out/" + today;
+        // 图片存储路径
+        String sourcePath = lookSourceFilePath.replace("{today}", today)
+                .replace("{uid}", uid.toString()).replace("{fileName}",
+                        UUID.randomUUID().toString() +
+                                multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf(".")));
         File sourceFile = new File(sourcePath);
         if(!sourceFile.getParentFile().exists()){
             sourceFile.getParentFile().mkdirs();
         }
+        // 表情存储路径
+        String outPath = lookOutFilePath.replace("{today}", today).replace("{uid}", uid.toString());
         File outFile = new File(outPath);
         if(!outFile.exists()){
             outFile.mkdirs();
         }
+
         try {
-            String filePath = null, fileName = null;
+            String filePath = null, outFileName = null;
             FontText fontText = new FontText(word, pos, color, size, family);
             Thumbnails.of(multipartFile.getInputStream()).size(500,500).toFile(sourceFile);
             ImageIcon imgIcon = new ImageIcon(sourcePath);
             Image img = imgIcon.getImage();
             if (type == 1) { //固定文字
-                fileName = UUID.randomUUID().toString() + ".png";
-                filePath = outPath + "/" + fileName;
+                outFileName = UUID.randomUUID().toString() + ".png";
+                filePath = outPath + "/" + outFileName;
                 BufferedImage bufferedImage = ImageUtils.drawTextInImg(img, fontText, 0);
                 FileOutputStream out = new FileOutputStream(filePath);
                 ImageIO.write(bufferedImage, "png", out);
                 out.close();
             }
-            else{
-                fileName = UUID.randomUUID().toString() + ".gif";
-                filePath = outPath+ "/" + fileName;
+            else {
+                outFileName = UUID.randomUUID().toString() + ".gif";
+                filePath = outPath + "/" + outFileName;
                 AnimatedGifEncoder animatedGifEncoder = new AnimatedGifEncoder();
                 BufferedImage bufferedImage1 = ImageUtils.drawTextInImg(img, fontText, 10);
                 BufferedImage bufferedImage2 = ImageUtils.drawTextInImg(img, fontText, 0);
@@ -105,33 +115,33 @@ public class DrawServiceImpl implements IDrawService {
                 animatedGifEncoder.setDelay(500);
                 animatedGifEncoder.finish();
             }
+
             //上传文件到七牛
-            QINIUUtils.Result result = qiniuUtils.upload(filePath, fileName);
-            if(result.getRet() == 1){
-                String url = QINIUUtils.URL_PREFIX + result.getMsg();
-                ImagePO imagePO = new ImagePO();
-                imagePO.setTitle("用户上传图片" + uid);
-                imagePO.setCompressSrc(url);
-                imagePO.setSrc(url);
-                int width = img.getWidth(null);
-                int height = img.getHeight(null);
-                imagePO.setWidth(width);
-                imagePO.setHeight(height);
-                imagePO.setUid(uid);
-                imagePO.setFlag(2);
-                int r = imageDAO.insertPic(imagePO);
-                if(r == 1){
-                    userDAO.insertFavo(new UserFavoPO(uid, imagePO.getId()));
-                }
-                ImageVO imageVO = new ImageVO();
-                BeanUtils.copyProperties(imagePO, imageVO);
-                imageVO.setSrc(Strings.compileUrl(imageVO.getSrc()));
-                imageVO.setCompressSrc(Strings.compileUrl(imageVO.getCompressSrc()));
-                return imageVO;
+            String key = filePath.replace("/mydata/ftp/", "");
+            boolean success = qnUtils.upload(sourcePath, key, "mydata");
+            if (!success) {
+                throw new FindException("抱歉，服务异常，请稍后再试！");
             }
-            else{
-                throw new FindException(result.getMsg());
+            String url = "${mydata}/" + key;
+            ImagePO imagePO = new ImagePO();
+            imagePO.setTitle("用户上传图片" + uid);
+            imagePO.setCompressSrc(url);
+            imagePO.setSrc(url);
+            int width = img.getWidth(null);
+            int height = img.getHeight(null);
+            imagePO.setWidth(width);
+            imagePO.setHeight(height);
+            imagePO.setUid(uid);
+            imagePO.setFlag(2);
+            int r = imageDAO.insertPic(imagePO);
+            if(r == 1){
+                userDAO.insertFavo(new UserFavoPO(uid, imagePO.getId()));
             }
+            ImageVO imageVO = new ImageVO();
+            BeanUtils.copyProperties(imagePO, imageVO);
+            imageVO.setSrc(Strings.compileUrl(imageVO.getSrc()));
+            imageVO.setCompressSrc(Strings.compileUrl(imageVO.getCompressSrc()));
+            return imageVO;
         } catch (FileNotFoundException e) {
             LOGGER.error("{}", e);
             throw new FindException("抱歉，服务异常，请稍后再试！");
@@ -144,8 +154,12 @@ public class DrawServiceImpl implements IDrawService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public FaceListVO drawFace(MultipartFile multipartFile, Long uid) throws FindException {
+        // 获取当前日期
         String today = SimpleDateUtil.shortFormat(new Date()).replaceAll("-","");
-        String fileName = UUID.randomUUID().toString() + multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
+        // 随机文件名（xxx.jpg）
+        String fileName = UUID.randomUUID().toString() +
+                multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
+        // 图片存储路径
         String sourcePath = faceFilePath.replace("{today}", today)
                 .replace("{uid}", uid.toString()).replace("{fileName}", fileName);
         File file = new File(sourcePath);
